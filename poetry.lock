@@ -1,0 +1,26 @@
+[[package]]
+category = "main"
+description = "Python interface for cairo"
+name = "pycairo"
+optional = false
+python-versions = "*"
+version = "1.18.1"
+
+[[package]]
+category = "main"
+description = "Python bindings for GObject Introspection"
+name = "pygobject"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+version = "3.32.2"
+
+[package.dependencies]
+pycairo = ">=1.11.1"
+
+[metadata]
+content-hash = "351e85e5760b16ee9538db761dea093a9962f835497049f7674b416ad6fb121c"
+python-versions = "^3.7"
+
+[metadata.hashes]
+pycairo = ["70172e58b6bad7572a3518c26729b074acdde15e6fee6cbab6d3528ad552b786"]
+pygobject = ["fa82746df059b9e0dcf473e0a9ff0693aa5e064f1ca1e2c46b5ac815bceda1ad"]

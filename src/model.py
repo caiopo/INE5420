@@ -48,7 +48,7 @@ class Delta:
         )
 
 
-class MoveDirection(Enum):
+class Direction(Enum):
     UP = Delta(-1, 0)
     DOWN = Delta(1, 0)
     LEFT = Delta(0, -1)

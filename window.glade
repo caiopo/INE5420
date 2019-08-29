@@ -27,7 +27,8 @@
             <property name="margin_right">5</property>
             <property name="margin_top">5</property>
             <property name="margin_bottom">5</property>
-            <signal name="button-press-event" handler="on_click_drawing_area" swapped="no"/>
+            <signal name="button-press-event" handler="on_press_drawing_area" swapped="no"/>
+            <signal name="button-release-event" handler="on_release_drawing_area" swapped="no"/>
             <signal name="configure-event" handler="on_configure_drawing_area" swapped="no"/>
             <signal name="draw" handler="on_draw" swapped="no"/>
           </object>
@@ -175,15 +176,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkListBox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>

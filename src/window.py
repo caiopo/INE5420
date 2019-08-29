@@ -1,11 +1,12 @@
-from math import pi
-from typing import List
+from typing import Optional
 
 import cairo
 
 from src.display_file import DisplayFile
+from src.drawing import draw_path, draw_point, draw_wireframe
 from src.log import log
-from src.model import Coordinate
+from src.model import Coordinate, Direction, Size
+from src.viewport import Viewport
 
 
 class WindowHandler:
@@ -13,15 +14,18 @@ class WindowHandler:
         self.window = window
         self.builder = builder
         self.df = DisplayFile()
+        self.vp: Optional[Viewport] = None
         self.surface = None
-        self.creating_object = None
+        self.creating_wireframe = None
 
     def on_configure_drawing_area(self, drawing_area, event):
-        log()
+        log(event)
 
         window = drawing_area.get_window()
         width = drawing_area.get_allocated_width()
         height = drawing_area.get_allocated_height()
+
+        self.vp = Viewport(size=Size(width, height), on_changed=self._refresh)
 
         self.surface = window.create_similar_surface(
             cairo.CONTENT_COLOR,
@@ -31,13 +35,18 @@ class WindowHandler:
         self._refresh()
         return True
 
-    def on_click_drawing_area(self, drawing_area, event):
+    def on_press_drawing_area(self, drawing_area, event):
         click = Coordinate(event.x, event.y)
-        log(click)
 
-        if self.creating_object is not None:
-            self.creating_object.append(click)
+        if self.creating_wireframe is not None:
+            untransformed_click = self.vp.untransform_coordinate(click)
+            self.creating_wireframe.append(untransformed_click)
             self._refresh()
+
+    def on_release_drawing_area(self, *args):
+        log(args)
+        # click = Coordinate(event.x, event.y)
+        # log(click)
 
     def on_draw(self, drawing_area, ctx):
         ctx.set_source_surface(self.surface, 0, 0)
@@ -48,36 +57,48 @@ class WindowHandler:
         active = toggle_button.get_active()
 
         if active:
-            self.creating_object = []
+            self.creating_wireframe = []
         else:
-            self.df.add(self.creating_object)
-            self.creating_object = None
+            self.df.add(self.creating_wireframe)
+            self.creating_wireframe = None
         self._refresh()
 
     def on_reset_pressed(self, *args):
         log(args)
         self.builder.get_object('add_wireframe_button').set_active(False)
         self.df.reset()
+        self.vp.reset()
         self._refresh()
+
+    def on_drag_begin(self, *args):
+        log(args)
+
+    def on_drag_end(self, *args):
+        log(args)
 
     def on_up_pressed(self, *args):
-        log(args)
+        self.vp.move(Direction.UP)
+        log(self.vp)
 
     def on_down_pressed(self, *args):
-        log(args)
+        self.vp.move(Direction.DOWN)
+        log(self.vp)
 
     def on_left_pressed(self, *args):
-        log(args)
+        self.vp.move(Direction.LEFT)
+        log(self.vp)
 
     def on_right_pressed(self, *args):
-        log(args)
+        self.vp.move(Direction.RIGHT)
+        log(self.vp)
 
     def on_zoom_in_pressed(self, *args):
-        log(args)
-        self._refresh()
+        self.vp.zoom_in()
+        log(self.vp)
 
     def on_zoom_out_pressed(self, *args):
-        log(args)
+        self.vp.zoom_out()
+        log(self.vp)
 
     def _clear_surface(self):
         cr = cairo.Context(self.surface)
@@ -90,26 +111,19 @@ class WindowHandler:
         ctx = cairo.Context(self.surface)
         ctx.set_source_rgb(0, 0, 0)
 
-        for obj in self.df:
-            self._draw_obj(ctx, obj.coordinates)
+        for wireframe in self.df:
+            transformed_wireframe = self.vp.transform_wireframe(wireframe)
+            draw_wireframe(ctx, transformed_wireframe)
             ctx.stroke()
 
-        if self.creating_object is not None:
+        if self.creating_wireframe is not None:
             ctx.set_source_rgb(1, 0, 0)
-            self._draw_obj(ctx, self.creating_object, close=False)
+            transformed_path = self.vp.transform_path(self.creating_wireframe)
+            if len(transformed_path) == 1:
+                draw_point(ctx, transformed_path[0])
+            else:
+                draw_path(ctx, transformed_path)
+
             ctx.stroke()
 
         self.window.queue_draw()
-
-    def _draw_obj(self, ctx: cairo.Context, coordinates: List[Coordinate], close=True):
-        if len(coordinates) == 1:
-            ctx.arc(coordinates[0].x, coordinates[0].y, 2, 0, 2 * pi)
-            ctx.fill()
-        else:
-            for i, coord in enumerate(coordinates):
-                if i == 0:
-                    ctx.move_to(coord.x, coord.y)
-                else:
-                    ctx.line_to(coord.x, coord.y)
-            if close:
-                ctx.close_path()

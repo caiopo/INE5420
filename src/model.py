@@ -4,8 +4,12 @@ from typing import List
 
 @dataclass
 class Coordinate:
-    x: int
-    y: int
+    x: float
+    y: float
+
+    def __post_init__(self):
+        self.x = float(self.x)
+        self.y = float(self.y)
 
     def __add__(self, other):
         assert isinstance(other, Delta)
@@ -24,6 +28,9 @@ class Coordinate:
             self.x * other,
             self.y * other
         )
+
+    def __str__(self):
+        return str((self.x, self.y))
 
 
 @dataclass
@@ -53,8 +60,8 @@ class Size:
 
 @dataclass
 class Delta:
-    x: int
-    y: int
+    x: float
+    y: float
 
     def __add__(self, other):
         assert isinstance(other, Delta)

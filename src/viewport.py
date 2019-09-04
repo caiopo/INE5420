@@ -10,8 +10,12 @@ STEP_SIZE = 0.1
 class Viewport:
     def __init__(self, size: Size, on_changed: Callable[[], None]):
         self.original_size = size
-        self.min = Coordinate(0, 0)
-        self.max = Coordinate(size.width, size.height)
+        self.wmin = Coordinate(0, 0)
+        self.wmax = Coordinate(size.width, size.height)
+
+        self.vmin = Coordinate(0, 0)
+        self.vmax = Coordinate(size.width, size.height)
+
         self.current_zoom = 1
         self.on_changed = on_changed
 
@@ -20,25 +24,25 @@ class Viewport:
 
     @property
     def size(self):
-        return Size(self.max.x - self.min.x, self.max.y - self.min.y)
+        return Size(self.wmax.x - self.wmin.x, self.wmax.y - self.wmin.y)
 
     def move(self, delta: Delta):
         size_delta = self.size.to_delta() * STEP_SIZE
 
-        self.min += delta * size_delta
-        self.max += delta * size_delta
+        self.wmin += delta * size_delta
+        self.wmax += delta * size_delta
         self._notify()
 
     def zoom_in(self):
         self.current_zoom += 1
-        self.min += self.size.to_delta() / 10
-        self.max += self.size.to_delta() / -10
+        self.wmin += self.size.to_delta() / 10
+        self.wmax += self.size.to_delta() / -10
         self._notify()
 
     def zoom_out(self):
         self.current_zoom -= 1
-        self.min += self.size.to_delta() / -10
-        self.max += self.size.to_delta() / 10
+        self.wmin += self.size.to_delta() / -10
+        self.wmax += self.size.to_delta() / 10
         self._notify()
 
     def transform_wireframe(self, wireframe: Wireframe):
@@ -50,20 +54,20 @@ class Viewport:
         return [self.transform_coordinate(c) for c in coordinates]
 
     def transform_coordinate(self, coordinate: Coordinate) -> Coordinate:
-        x = (coordinate.x - self.min.x) / self.size.width * self.original_size.width
-        y = (coordinate.y - self.min.y) / self.size.height * self.original_size.height
+        x = (coordinate.x - self.wmin.x) / (self.wmax.x - self.wmin.x) * (self.vmax.x - self.vmin.x)
+        y = (coordinate.y - self.wmin.y) / (self.wmax.y - self.wmin.y) * (self.vmax.y - self.vmin.y)
 
-        return Coordinate(int(x), int(y))
+        return Coordinate(x, y)
 
     def untransform_coordinate(self, coordinate: Coordinate) -> Coordinate:
-        x = (coordinate.x + self.min.x) / self.size.width * self.original_size.width
-        y = (coordinate.y + self.min.y) / self.size.height * self.original_size.height
+        x = coordinate.x / (self.vmax.x - self.vmin.x) * (self.wmax.x - self.wmin.x) + self.wmin.x
+        y = coordinate.y / (self.vmax.y - self.vmin.y) * (self.wmax.y - self.wmin.y) + self.wmin.y
 
-        return Coordinate(int(x), int(y))
+        return Coordinate(x, y)
 
     def _notify(self):
         if self.on_changed is not None:
             self.on_changed()
 
     def __str__(self):
-        return f'Viewport(min={self.min}, max={self.max}, size={self.size}, aspect_ratio={self.size.aspect_ratio})'
+        return f'Viewport(wmin={self.wmin}, wmax={self.wmax}, size={self.size}, aspect_ratio={self.size.aspect_ratio})'

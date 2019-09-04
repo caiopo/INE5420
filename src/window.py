@@ -43,6 +43,8 @@ class WindowHandler:
             self.creating_wireframe.append(untransformed_click)
             self._refresh()
 
+        return True
+
     def on_release_drawing_area(self, *args):
         log(args)
         # click = Coordinate(event.x, event.y)
@@ -62,6 +64,10 @@ class WindowHandler:
             self.df.add(self.creating_wireframe)
             self.creating_wireframe = None
         self._refresh()
+
+    def on_move_to_origin_pressed(self, *args):
+        log(args)
+        self.vp.move_to_origin()
 
     def on_reset_pressed(self, *args):
         log(args)

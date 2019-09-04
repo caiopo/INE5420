@@ -27,6 +27,12 @@ class Viewport:
     def size(self):
         return Size(round(self.wmax.x - self.wmin.x), round(self.wmax.y - self.wmin.y))
 
+    def move_to_origin(self):
+        self.wmin = Coordinate(-self.original_size.width / 2, -self.original_size.height / 2)
+        self.wmax = Coordinate(self.original_size.width / 2, self.original_size.height / 2)
+        self.current_zoom = 0
+        self._notify()
+
     def move(self, delta: Delta):
         size_delta = self.size.to_delta() * STEP_SIZE
 

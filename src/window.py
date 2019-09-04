@@ -109,6 +109,22 @@ class WindowHandler:
         self._clear_surface()
 
         ctx = cairo.Context(self.surface)
+
+        ctx.set_source_rgba(0, 0, 0, 0.3)
+        ctx.set_line_width(1)
+
+        for wireframe in self.vp.get_grid():
+            draw_wireframe(ctx, wireframe)
+            ctx.stroke()
+
+        ctx.set_source_rgba(0, 0, 0, 0.5)
+        ctx.set_line_width(10)
+
+        origin = self.vp.transform_coordinate(Coordinate(0, 0))
+        draw_point(ctx, origin)
+        ctx.stroke()
+
+        ctx.set_line_width(1.5)
         ctx.set_source_rgb(0, 0, 0)
 
         for wireframe in self.df:

@@ -41,6 +41,27 @@ class Wireframe:
     def copy(self, **changes):
         return replace(self, **changes)
 
+    @staticmethod
+    def line(id, xy1, xy2):
+        x1, y1 = xy1
+        x2, y2 = xy2
+        return Wireframe(
+            id,
+            coordinates=[
+                Coordinate(x1, y1),
+                Coordinate(x2, y2),
+            ]
+        )
+
+    @staticmethod
+    def point(id, x, y):
+        return Wireframe(
+            id,
+            coordinates=[
+                Coordinate(x, y),
+            ]
+        )
+
 
 @dataclass
 class Size:

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Callable, List
 
 from src.model import Coordinate, Delta, Size, Wireframe
+from src.utils import multiples_between
 
 STEP_SIZE = 0.1
 
@@ -10,8 +11,8 @@ STEP_SIZE = 0.1
 class Viewport:
     def __init__(self, size: Size, on_changed: Callable[[], None]):
         self.original_size = size
-        self.wmin = Coordinate(0, 0)
-        self.wmax = Coordinate(size.width, size.height)
+        self.wmin = Coordinate(-size.width / 2, -size.height / 2)
+        self.wmax = Coordinate(size.width / 2, size.height / 2)
 
         self.vmin = Coordinate(0, 0)
         self.vmax = Coordinate(size.width, size.height)
@@ -24,7 +25,7 @@ class Viewport:
 
     @property
     def size(self):
-        return Size(self.wmax.x - self.wmin.x, self.wmax.y - self.wmin.y)
+        return Size(round(self.wmax.x - self.wmin.x), round(self.wmax.y - self.wmin.y))
 
     def move(self, delta: Delta):
         size_delta = self.size.to_delta() * STEP_SIZE
@@ -45,6 +46,12 @@ class Viewport:
         self.wmax += self.size.to_delta() / 10
         self._notify()
 
+    def transform_wireframes(self, wireframes: List[Wireframe]):
+        return [
+            w.copy(coordinates=self.transform_path(w.coordinates))
+            for w in wireframes
+        ]
+
     def transform_wireframe(self, wireframe: Wireframe):
         return wireframe.copy(
             coordinates=self.transform_path(wireframe.coordinates)
@@ -64,6 +71,19 @@ class Viewport:
         y = coordinate.y / (self.vmax.y - self.vmin.y) * (self.wmax.y - self.wmin.y) + self.wmin.y
 
         return Coordinate(x, y)
+
+    def get_grid(self):
+        lines = [
+            Wireframe.line('grid', (self.wmin.x, y), (self.wmax.x, y))
+            for y in multiples_between(self.wmin.y, self.wmax.y, 100)
+        ]
+
+        columns = [
+            Wireframe.line('grid', (x, self.wmin.y), (x, self.wmax.y))
+            for x in multiples_between(self.wmin.x, self.wmax.x, 100)
+        ]
+
+        return self.transform_wireframes(lines + columns)
 
     def _notify(self):
         if self.on_changed is not None:

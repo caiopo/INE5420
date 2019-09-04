@@ -7,14 +7,14 @@ class DisplayFile:
     def __init__(self):
         self.current_id = 0
         self.wireframes = [
-            Wireframe(
-                'aaaaaaa',
-                [
-                    Coordinate(100, 200),
-                    Coordinate(200, 300),
-                    Coordinate(300, 100),
-                ]
-            )
+            # Wireframe(
+            #     'aaaaaaa',
+            #     [
+            #         Coordinate(100, 200),
+            #         Coordinate(200, 300),
+            #         Coordinate(300, 100),
+            #     ]
+            # )
         ]
 
     def add(self, coordinates: List[Coordinate]):

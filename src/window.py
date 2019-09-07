@@ -112,6 +112,8 @@ class WindowHandler:
         cr.paint()
 
     def _refresh(self):
+        self._refresh_list()
+
         self._clear_surface()
 
         ctx = cairo.Context(self.surface)
@@ -149,3 +151,31 @@ class WindowHandler:
             ctx.stroke()
 
         self.window.queue_draw()
+
+    def _refresh_list(self):
+        wireframe_list = ['Objects:']
+
+        if len(self.df.wireframes) == 0:
+            wireframe_list = ['No objects', 'added yet']
+
+        for wireframe in self.df.wireframes:
+            t = 'Polygon'
+
+            coord_len = len(wireframe.coordinates)
+            if coord_len == 1:
+                t = 'Point'
+            elif coord_len == 2:
+                t = 'Line'
+
+            wireframe_list.extend([
+                '',
+                f'ID: {wireframe.id}',
+                f'Type: {t}',
+            ])
+
+            for i, c in enumerate(wireframe.coordinates):
+                wireframe_list.append(f'C{i}: ({round(c.x)}, {round(c.y)})')
+
+        wireframe_list.append('')
+
+        self.builder.get_object('wireframe_list').set_text('\n'.join(wireframe_list))

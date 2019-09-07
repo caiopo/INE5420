@@ -1,9 +1,9 @@
 import gi
 
-from src.window import WindowHandler
-
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+
+from src.window import WindowHandler
 
 
 def main():

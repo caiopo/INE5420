@@ -65,8 +65,12 @@ class Wireframe:
 
 @dataclass
 class Size:
-    width: int
-    height: int
+    width: float
+    height: float
+
+    def __post_init__(self):
+        self.width = float(self.width)
+        self.height = float(self.height)
 
     @property
     def aspect_ratio(self):

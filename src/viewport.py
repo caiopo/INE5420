@@ -9,7 +9,7 @@ STEP_SIZE = 0.1
 
 @dataclass
 class Viewport:
-    def __init__(self, size: Size, on_changed: Callable[[], None]):
+    def __init__(self, size: Size, on_changed: Callable[[], None] = None):
         self.original_size = size
         self.wmin = Coordinate(-size.width / 2, -size.height / 2)
         self.wmax = Coordinate(size.width / 2, size.height / 2)
@@ -25,12 +25,12 @@ class Viewport:
 
     @property
     def size(self):
-        return Size(round(self.wmax.x - self.wmin.x), round(self.wmax.y - self.wmin.y))
+        return Size(self.wmax.x - self.wmin.x, self.wmax.y - self.wmin.y)
 
     def move_to_origin(self):
         self.wmin = Coordinate(-self.original_size.width / 2, -self.original_size.height / 2)
         self.wmax = Coordinate(self.original_size.width / 2, self.original_size.height / 2)
-        self.current_zoom = 0
+        self.current_zoom = 1
         self._notify()
 
     def move(self, delta: Delta):

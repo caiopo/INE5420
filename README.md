@@ -1,4 +1,4 @@
-Trabalho 1.1 - Sistema básico com Window e Viewport
+Trabalho 1.2 - Sistema básico com Window e Viewport
 ===================================================
 
 Autor: Caio Pereira Oliveira
@@ -7,7 +7,7 @@ Autor: Caio Pereira Oliveira
 Instruções de uso:
 ------------------
 
-- Para adicionar um novo ponto/reta/polígono,clique
+- Para adicionar um novo ponto/reta/polígono, clique
 no botão "Add Wireframe" e depois nas coordenadas
 do novo polígono. Ao terminar, clique no botão
 novamente.

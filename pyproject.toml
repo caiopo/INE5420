@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.7"
 pycairo = "^1.18"
 pygobject = "^3.32"
+numpy = "^1.17"
 
 [tool.poetry.dev-dependencies]
 

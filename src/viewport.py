@@ -4,7 +4,7 @@ from typing import Callable, List
 from src.model import Coordinate, Delta, Size, Wireframe
 from src.utils import multiples_between
 
-STEP_SIZE = 0.1
+STEP_FACTOR = 10
 
 
 @dataclass
@@ -17,7 +17,6 @@ class Viewport:
         self.vmin = Coordinate(0, 0)
         self.vmax = Coordinate(size.width, size.height)
 
-        self.current_zoom = 1
         self.on_changed = on_changed
 
     def reset(self):
@@ -25,29 +24,26 @@ class Viewport:
 
     @property
     def size(self):
-        return Size(round(self.wmax.x - self.wmin.x), round(self.wmax.y - self.wmin.y))
+        return Size(self.wmax.x - self.wmin.x, self.wmax.y - self.wmin.y)
 
     def move_to_origin(self):
         self.wmin = Coordinate(-self.original_size.width / 2, -self.original_size.height / 2)
         self.wmax = Coordinate(self.original_size.width / 2, self.original_size.height / 2)
-        self.current_zoom = 0
         self._notify()
 
     def move(self, delta: Delta):
-        size_delta = self.size.to_delta() * STEP_SIZE
+        size_delta = self.size.to_delta() / STEP_FACTOR
 
         self.wmin += delta * size_delta
         self.wmax += delta * size_delta
         self._notify()
 
     def zoom_in(self):
-        self.current_zoom += 1
         self.wmin += self.size.to_delta() / 10
         self.wmax += self.size.to_delta() / -10
         self._notify()
 
     def zoom_out(self):
-        self.current_zoom -= 1
         self.wmin += self.size.to_delta() / -10
         self.wmax += self.size.to_delta() / 10
         self._notify()
@@ -58,7 +54,7 @@ class Viewport:
             for w in wireframes
         ]
 
-    def transform_wireframe(self, wireframe: Wireframe):
+    def transform_wireframe(self, wireframe: Wireframe) -> Wireframe:
         return wireframe.copy(
             coordinates=self.transform_path(wireframe.coordinates)
         )
@@ -96,4 +92,5 @@ class Viewport:
             self.on_changed()
 
     def __str__(self):
-        return f'Viewport(wmin={self.wmin}, wmax={self.wmax}, size={self.size}, aspect_ratio={self.size.aspect_ratio})'
+        return (f'Viewport(wmin={self.wmin}, wmax={self.wmax}, '
+                f'size={self.size}, aspect_ratio={self.size.aspect_ratio})')

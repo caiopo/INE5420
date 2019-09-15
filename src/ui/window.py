@@ -6,6 +6,7 @@ from src.display_file import DisplayFile
 from src.drawing import draw_path, draw_point, draw_wireframe
 from src.log import log
 from src.model import Coordinate, Direction, Size
+from src.ui.transform_dialog import TransformDialogHandler, TransformResult
 from src.viewport import Viewport
 
 
@@ -45,11 +46,6 @@ class WindowHandler:
 
         return True
 
-    def on_release_drawing_area(self, *args):
-        log(args)
-        # click = Coordinate(event.x, event.y)
-        # log(click)
-
     def on_draw(self, drawing_area, ctx):
         ctx.set_source_surface(self.surface, 0, 0)
         ctx.paint()
@@ -68,6 +64,23 @@ class WindowHandler:
     def on_move_to_origin_pressed(self, *args):
         log(args)
         self.vp.move_to_origin()
+
+    def on_transform_pressed(self, *args):
+        log(args)
+        TransformDialogHandler(self.on_transform_completed)
+
+    def on_transform_completed(self, result: TransformResult):
+        log(result)
+
+        if result is None:
+            return
+
+        try:
+            result.apply(self.df)
+        except ValueError as e:
+            print('transform error:', e)
+
+        self._refresh()
 
     def on_reset_pressed(self, *args):
         log(args)
@@ -107,9 +120,9 @@ class WindowHandler:
         log(self.vp)
 
     def _clear_surface(self):
-        cr = cairo.Context(self.surface)
-        cr.set_source_rgb(1, 1, 1)
-        cr.paint()
+        ctx = cairo.Context(self.surface)
+        ctx.set_source_rgb(1, 1, 1)
+        ctx.paint()
 
     def _refresh(self):
         self._refresh_list()
@@ -135,7 +148,7 @@ class WindowHandler:
         ctx.set_line_width(1.5)
         ctx.set_source_rgb(0, 0, 0)
 
-        for wireframe in self.df:
+        for wireframe in self.df.wireframes:
             transformed_wireframe = self.vp.transform_wireframe(wireframe)
             draw_wireframe(ctx, transformed_wireframe)
             ctx.stroke()
@@ -175,6 +188,9 @@ class WindowHandler:
 
             for i, c in enumerate(wireframe.coordinates):
                 wireframe_list.append(f'C{i}: ({round(c.x)}, {round(c.y)})')
+
+            center = wireframe.center
+            wireframe_list.append(f'Center: ({round(center.x)}, {round(center.y)})')
 
         wireframe_list.append('')
 

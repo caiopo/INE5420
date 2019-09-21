@@ -119,6 +119,14 @@ class WindowHandler:
         self.vp.zoom_out()
         log(self.vp)
 
+    def on_rotate_clockwise_pressed(self, *args):
+        self.vp.rotate_clockwise()
+        log(self.vp)
+
+    def on_rotate_counterclockwise_pressed(self, *args):
+        self.vp.rotate_counterclockwise()
+        log(self.vp)
+
     def _clear_surface(self):
         ctx = cairo.Context(self.surface)
         ctx.set_source_rgb(1, 1, 1)
@@ -131,10 +139,14 @@ class WindowHandler:
 
         ctx = cairo.Context(self.surface)
 
-        ctx.set_source_rgba(0, 0, 0, 0.3)
         ctx.set_line_width(1)
 
         for wireframe in self.vp.get_grid():
+            if wireframe.id == 'blue':
+                ctx.set_source_rgba(0, 0, 1, 0.3)
+            else:
+                ctx.set_source_rgba(1, 0, 0, 0.3)
+
             draw_wireframe(ctx, wireframe)
             ctx.stroke()
 

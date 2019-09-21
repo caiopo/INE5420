@@ -21,6 +21,27 @@ class Coordinate:
     def y(self):
         return self.v[1]
 
+    def rotate(self, anchor: 'Coordinate', theta: float):
+        t_origin = np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+            [-anchor.x, -anchor.y, 1],
+        ])
+
+        rotate = np.array([
+            [cos(theta), -sin(theta), 0],
+            [sin(theta), cos(theta), 0],
+            [0, 0, 1],
+        ])
+
+        t_back = np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+            [anchor.x, anchor.y, 1],
+        ])
+
+        return self @ t_origin @ rotate @ t_back
+
     def __add__(self, other):
         if isinstance(other, Delta):
             return Coordinate.from_array(self.v + other.v)

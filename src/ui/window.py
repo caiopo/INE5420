@@ -76,7 +76,7 @@ class WindowHandler:
             return
 
         try:
-            result.apply(self.df)
+            result.apply(self.df, self.vp)
         except ValueError as e:
             print('transform error:', e)
 

@@ -223,6 +223,15 @@ class Delta:
     def __init__(self, x: float, y: float):
         self.v = np.array([x, y, 0], dtype=float)
 
+    def rotate(self, theta: float):
+        rotate = np.array([
+            [cos(theta), -sin(theta), 0],
+            [sin(theta), cos(theta), 0],
+            [0, 0, 1],
+        ])
+
+        return Delta.from_array(self.v @ rotate)
+
     @property
     def x(self):
         return self.v[0]

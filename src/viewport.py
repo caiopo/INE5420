@@ -52,6 +52,7 @@ class Viewport:
 
     def move(self, delta: Delta):
         size_delta = self.size.to_delta() / STEP_FACTOR
+        delta = delta.rotate(-self.angle)
 
         self.wmin += delta * size_delta
         self.wmax += delta * size_delta

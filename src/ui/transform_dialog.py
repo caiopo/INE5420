@@ -7,6 +7,7 @@ from src.display_file import DisplayFile
 from src.log import log
 from src.model import Coordinate, Delta
 from src.utils import try_float
+from src.viewport import Viewport
 
 GLADE_FILE = Path(__file__).parent.parent.parent / 'transform_dialog.glade'
 
@@ -19,7 +20,7 @@ class TransformResult:
     y: float
     theta: float
 
-    def apply(self, df: DisplayFile):
+    def apply(self, df: DisplayFile, vp: Viewport):
         wireframe = df[self.oid]
 
         if wireframe is None:
@@ -31,7 +32,7 @@ class TransformResult:
             if self.x is None or self.y is None:
                 raise ValueError('scale')
 
-            new = wireframe.translate(Delta(self.x, self.y))
+            new = wireframe.translate(Delta(self.x, self.y).rotate(-vp.angle))
 
         if self.type == 'scale':
             if self.x is None or self.y is None:

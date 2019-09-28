@@ -2,22 +2,25 @@ from dataclasses import dataclass
 from math import pi
 from typing import Callable, List
 
+from src.colors import Colors
 from src.model import Coordinate, Delta, Size, Wireframe
 from src.utils import multiples_between
 
 STEP_FACTOR = 10
 ROTATION_FACTOR = pi / 8
 
+CLIP_BOUNDARY = 30
+
 
 @dataclass
 class Viewport:
     def __init__(self, size: Size, on_changed: Callable[[], None]):
         self.original_size = size
-        self.wmin = Coordinate(-size.width / 2, -size.height / 2)
-        self.wmax = Coordinate(size.width / 2, size.height / 2)
+        self.wmin = Coordinate((-size.width / 2) + CLIP_BOUNDARY, (-size.height / 2) + CLIP_BOUNDARY)
+        self.wmax = Coordinate((size.width / 2) - CLIP_BOUNDARY, (size.height / 2) - CLIP_BOUNDARY)
 
-        self.vmin = Coordinate(0, 0)
-        self.vmax = Coordinate(size.width, size.height)
+        self.vmin = Coordinate(CLIP_BOUNDARY, CLIP_BOUNDARY)
+        self.vmax = Coordinate(size.width - CLIP_BOUNDARY, size.height - CLIP_BOUNDARY)
 
         self.angle = 0
 
@@ -110,12 +113,12 @@ class Viewport:
         size = self.size
 
         lines = [
-            Wireframe.line('red', (self.wmin.x - size.width, y), (self.wmax.x + size.width, y))
+            Wireframe.line('red', (self.wmin.x - size.width, y), (self.wmax.x + size.width, y), Colors.red)
             for y in multiples_between(self.wmin.y - size.height, self.wmax.y + size.height, 100)
         ]
 
         columns = [
-            Wireframe.line('blue', (x, self.wmin.y - size.height), (x, self.wmax.y + size.height))
+            Wireframe.line('blue', (x, self.wmin.y - size.height), (x, self.wmax.y + size.height), Colors.blue)
             for x in multiples_between(self.wmin.x - size.width, self.wmax.x + size.width, 100)
         ]
 

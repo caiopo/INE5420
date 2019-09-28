@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field, replace
 from math import cos, sin
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
+
+from src.colors import Color
 
 
 class Coordinate:
@@ -72,29 +74,55 @@ class Coordinate:
 class Wireframe:
     id: str
     coordinates: List[Coordinate] = field(default_factory=list)
+    color: Color = None
 
     def copy(self, **changes):
         return replace(self, **changes)
 
     @staticmethod
-    def line(id, xy1, xy2):
+    def line(oid, xy1, xy2, color=None):
         x1, y1 = xy1
         x2, y2 = xy2
         return Wireframe(
-            id,
+            oid,
             coordinates=[
                 Coordinate(x1, y1),
                 Coordinate(x2, y2),
-            ]
+            ],
+            color=color,
         )
 
     @staticmethod
-    def point(id, x, y):
+    def point(oid, x, y, color=None):
         return Wireframe(
-            id,
+            oid,
             coordinates=[
                 Coordinate(x, y),
-            ]
+            ],
+            color=color,
+        )
+
+    @staticmethod
+    def square(oid, xy1, xy2, color=None):
+        x1, y1 = _unpack(xy1)
+        x2, y2 = _unpack(xy2)
+
+        minx = min(x1, x2)
+        maxx = max(x1, x2)
+
+        miny = min(y1, y2)
+        maxy = max(y1, y2)
+
+        return Wireframe(
+            oid,
+            coordinates=[
+                Coordinate(minx, miny),
+                Coordinate(maxx, miny),
+                Coordinate(maxx, maxy),
+                Coordinate(minx, maxy),
+                Coordinate(minx, miny),
+            ],
+            color=color,
         )
 
     @property
@@ -110,6 +138,10 @@ class Wireframe:
         cy /= len(self.coordinates)
 
         return Coordinate(cx, cy)
+
+    @property
+    def lines(self) -> List[Tuple[Coordinate, Coordinate]]:
+        return list(zip(self.coordinates, self.coordinates[1:]))
 
     def _apply_transformation(self, t):
         return self.copy(coordinates=[c @ t for c in self.coordinates])
@@ -190,31 +222,6 @@ class Size:
         )
 
 
-# @dataclass
-# class Delta:
-#
-#     def __add__(self, other):
-#         assert isinstance(other, Delta)
-#         return Delta(
-#             self.x + other.x,
-#             self.y + other.y,
-#         )
-#
-#     def __mul__(self, other):
-#         if isinstance(other, Delta):
-#             return Delta(
-#                 self.x * other.x,
-#                 self.y * other.y,
-#             )
-#         return Delta(
-#             self.x * other,
-#             self.y * other,
-#         )
-#
-#     def __truediv__(self, other):
-#         return self * (1 / other)
-
-
 class Delta:
     @staticmethod
     def from_array(arr: np.array):
@@ -275,3 +282,9 @@ class Direction:
     DOWN = Delta(0, 1)
     LEFT = Delta(-1, 0)
     RIGHT = Delta(1, 0)
+
+
+def _unpack(xy):
+    if isinstance(xy, Coordinate):
+        return xy.x, xy.y
+    return xy

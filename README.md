@@ -1,5 +1,5 @@
-Trabalho 1.2 - Sistema básico com Window e Viewport
-===================================================
+Trabalho 1.4 - Clipping
+=======================
 
 Autor: Caio Pereira Oliveira
 

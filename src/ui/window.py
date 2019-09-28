@@ -2,10 +2,11 @@ from typing import Optional
 
 import cairo
 
+from src.colors import Color
 from src.display_file import DisplayFile
-from src.drawing import draw_path, draw_point, draw_wireframe
+from src.drawing import Pencil
 from src.log import log
-from src.model import Coordinate, Direction, Size
+from src.model import Coordinate, Direction, Size, Wireframe
 from src.ui.transform_dialog import TransformDialogHandler, TransformResult
 from src.viewport import Viewport
 
@@ -57,6 +58,9 @@ class WindowHandler:
         if active:
             self.creating_wireframe = []
         else:
+            if len(self.creating_wireframe) > 2:
+                self.creating_wireframe.append(self.creating_wireframe[0])
+
             self.df.add(self.creating_wireframe)
             self.creating_wireframe = None
         self._refresh()
@@ -134,46 +138,43 @@ class WindowHandler:
 
     def _refresh(self):
         self._refresh_list()
-
         self._clear_surface()
 
-        ctx = cairo.Context(self.surface)
-
-        ctx.set_line_width(1)
+        pencil = Pencil(self.surface)
 
         for wireframe in self.vp.get_grid():
-            if wireframe.id == 'blue':
-                ctx.set_source_rgba(0, 0, 1, 0.3)
-            else:
-                ctx.set_source_rgba(1, 0, 0, 0.3)
+            pencil.draw_wireframe(wireframe)
 
-            draw_wireframe(ctx, wireframe)
-            ctx.stroke()
-
-        ctx.set_source_rgba(0, 0, 0, 0.5)
-        ctx.set_line_width(10)
+        pencil.line_width(10)
+        pencil.color(Color(0, 0, 0, 0.5))
 
         origin = self.vp.transform_coordinate(Coordinate(0, 0))
-        draw_point(ctx, origin)
-        ctx.stroke()
+        pencil.draw_point(origin)
 
-        ctx.set_line_width(1.5)
-        ctx.set_source_rgb(0, 0, 0)
+        pencil.line_width(1.5)
 
         for wireframe in self.df.wireframes:
             transformed_wireframe = self.vp.transform_wireframe(wireframe)
-            draw_wireframe(ctx, transformed_wireframe)
-            ctx.stroke()
+            pencil.draw_wireframe(transformed_wireframe)
 
         if self.creating_wireframe is not None:
-            ctx.set_source_rgb(1, 0, 0)
-            transformed_path = self.vp.transform_path(self.creating_wireframe)
-            if len(transformed_path) == 1:
-                draw_point(ctx, transformed_path[0])
-            else:
-                draw_path(ctx, transformed_path)
+            w = Wireframe(
+                id='creating',
+                coordinates=self.creating_wireframe,
+                color=Color(1, 0, 0)
+            )
 
-            ctx.stroke()
+            transformed_wireframe = self.vp.transform_wireframe(w)
+            pencil.draw_wireframe(transformed_wireframe)
+
+        clipping_square = Wireframe.square(
+            'clipping_square',
+            self.vp.vmin,
+            self.vp.vmax,
+            color=Color(1, 0.5, 0),
+        )
+
+        pencil.draw_wireframe(clipping_square)
 
         self.window.queue_draw()
 

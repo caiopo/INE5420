@@ -9,7 +9,7 @@ from src.utils import multiples_between
 STEP_FACTOR = 10
 ROTATION_FACTOR = pi / 8
 
-CLIP_BOUNDARY = 30
+CLIP_BOUNDARY = 10
 
 
 @dataclass

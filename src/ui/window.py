@@ -140,7 +140,7 @@ class WindowHandler:
         self._refresh_list()
         self._clear_surface()
 
-        pencil = Pencil(self.surface)
+        pencil = Pencil(self.surface, self.vp.vmin, self.vp.vmax)
 
         for wireframe in self.vp.get_grid():
             pencil.draw_wireframe(wireframe)

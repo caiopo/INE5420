@@ -64,9 +64,7 @@ class Coordinate:
         return NotImplemented
 
     def __eq__(self, other):
-        e = isinstance(other, Coordinate) and (self.v == other.v).all()
-        # print(self, other, e)
-        return e
+        return isinstance(other, Coordinate) and (self.v == other.v).all()
 
     def __str__(self):
         return str((self.x, self.y))

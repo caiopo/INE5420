@@ -19,8 +19,11 @@ class Viewport:
         self.wmin = Coordinate((-size.width / 2) + CLIP_BOUNDARY, (-size.height / 2) + CLIP_BOUNDARY)
         self.wmax = Coordinate((size.width / 2) - CLIP_BOUNDARY, (size.height / 2) - CLIP_BOUNDARY)
 
-        self.vmin = Coordinate(CLIP_BOUNDARY, CLIP_BOUNDARY)
-        self.vmax = Coordinate(size.width - CLIP_BOUNDARY, size.height - CLIP_BOUNDARY)
+        self.vmin = Coordinate(0, 0)
+        self.vmax = Coordinate(size.width, size.height)
+
+        self.cmin = Coordinate(CLIP_BOUNDARY, CLIP_BOUNDARY)
+        self.cmax = Coordinate(size.width - CLIP_BOUNDARY, size.height - CLIP_BOUNDARY)
 
         self.angle = 0
 
@@ -80,7 +83,7 @@ class Viewport:
         self.angle -= ROTATION_FACTOR
         self._notify()
 
-    def transform_wireframes(self, wireframes: List[Wireframe]):
+    def transform_wireframes(self, wireframes: List[Wireframe]) -> List[Wireframe]:
         return [
             w.copy(coordinates=self.transform_path(w.coordinates))
             for w in wireframes
@@ -131,4 +134,5 @@ class Viewport:
 
     def __str__(self):
         return (f'Viewport(wmin={self.wmin}, wmax={self.wmax}, angle={self.angle}, '
-                f'size={self.size}, aspect_ratio={self.size.aspect_ratio}), wcenter={self.wcenter}')
+                f'size={self.size}, aspect_ratio={self.size.aspect_ratio}), wcenter={self.wcenter}, '
+                f'vcenter={self.vcenter})')

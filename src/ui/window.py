@@ -142,9 +142,12 @@ class WindowHandler:
         self._clear_surface()
 
         pencil = Pencil(self.surface, self.vp.vmin, self.vp.vmax)
+        clipper = Clipper(self.vp.vmin, self.vp.vmax)
 
         for wireframe in self.vp.get_grid():
-            pencil.draw_wireframe(wireframe)
+            clipped_wireframes = clipper.clip(wireframe)
+            for w in clipped_wireframes:
+                pencil.draw_wireframe(w)
 
         pencil.line_width(10)
         pencil.color(Color(0, 0, 0, 0.5))
@@ -157,21 +160,19 @@ class WindowHandler:
         for wireframe in self.df.wireframes:
             transformed_wireframe = self.vp.transform_wireframe(wireframe)
 
-            clipper = Clipper(self.vp.vmin, self.vp.vmax)
-
             clipped_wireframe = clipper.clip(transformed_wireframe)
 
             for w in clipped_wireframe:
                 pencil.draw_wireframe(w)
 
         if self.creating_wireframe is not None:
-            w = Wireframe(
+            new_wireframe = Wireframe(
                 id='creating',
                 coordinates=self.creating_wireframe,
                 color=Color(1, 0, 0)
             )
 
-            transformed_wireframe = self.vp.transform_wireframe(w)
+            transformed_wireframe = self.vp.transform_wireframe(new_wireframe)
             pencil.draw_wireframe(transformed_wireframe)
 
         clipping_square = Wireframe.square(

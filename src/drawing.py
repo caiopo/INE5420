@@ -41,12 +41,3 @@ class Pencil:
         self.ctx.move_to(c0.x, c0.y)
         self.ctx.line_to(c1.x, c1.y)
         self.ctx.stroke()
-
-        # clipper = Clipper(self.vmin, self.vmax)
-        #
-        # inside, c0, c1 = clipper.cohen_sutherland(c0, c1)
-        #
-        # if inside:
-        #     self.ctx.move_to(c0.x, c0.y)
-        #     self.ctx.line_to(c1.x, c1.y)
-        #     self.ctx.stroke()

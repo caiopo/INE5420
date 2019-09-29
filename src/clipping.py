@@ -96,15 +96,8 @@ class Clipper:
     def weiler_atherton(self, wireframe: Wireframe):
         subject = [(c, _Type.ORIGINAL) for c in wireframe.coordinates]
 
-        # for s in enumerate(subject):
-        #     print(s)
-        #
-        # print()
-
         for i, (c0, c1) in enumerate(wireframe.lines):
             inside, nc0, nc1 = self.cohen_sutherland(c0, c1)
-
-            # print(i, c0, c1, nc0, nc1)
 
             if inside:
                 if c1 != nc1:
@@ -118,10 +111,6 @@ class Clipper:
         out = []
 
         current = None
-
-        for s in enumerate(subject):
-            print(s)
-        print()
 
         for first_iteration, (c, t) in _cycle(subject):
             if t == _Type.ENTERING:

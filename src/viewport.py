@@ -48,8 +48,9 @@ class Viewport:
         )
 
     def move_to_origin(self):
-        self.wmin = Coordinate(-self.original_size.width / 2, -self.original_size.height / 2)
-        self.wmax = Coordinate(self.original_size.width / 2, self.original_size.height / 2)
+        size = self.original_size
+        self.wmin = Coordinate((-size.width / 2) + CLIP_BOUNDARY, (-size.height / 2) + CLIP_BOUNDARY)
+        self.wmax = Coordinate((size.width / 2) - CLIP_BOUNDARY, (size.height / 2) - CLIP_BOUNDARY)
         self.angle = 0
         self._notify()
 

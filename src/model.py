@@ -64,10 +64,15 @@ class Coordinate:
         return NotImplemented
 
     def __eq__(self, other):
-        return isinstance(other, Coordinate) and self.v == other.v
+        e = isinstance(other, Coordinate) and (self.v == other.v).all()
+        # print(self, other, e)
+        return e
 
     def __str__(self):
         return str((self.x, self.y))
+
+    def __repr__(self):
+        return str(self)
 
 
 @dataclass

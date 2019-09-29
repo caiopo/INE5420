@@ -2,13 +2,12 @@ from math import pi
 
 import cairo
 
-from src.clipping import Clipper
 from src.colors import Color
 from src.model import Coordinate, Wireframe
 
 
 class Pencil:
-    def __init__(self, surface, vmin, vmax):
+    def __init__(self, surface, vmin: Coordinate, vmax: Coordinate):
         self.ctx = cairo.Context(surface)
         self.ctx.set_line_width(1)
 
@@ -31,7 +30,6 @@ class Pencil:
         else:
             for line in wireframe.lines:
                 self._draw_line(*line)
-        self.ctx.stroke()
 
     def line_width(self, width):
         self.ctx.set_line_width(width)
@@ -40,11 +38,15 @@ class Pencil:
         self.ctx.set_source_rgba(*color.to_list())
 
     def _draw_line(self, c0: Coordinate, c1: Coordinate):
-        clipper = Clipper(self.vmin, self.vmax)
+        self.ctx.move_to(c0.x, c0.y)
+        self.ctx.line_to(c1.x, c1.y)
+        self.ctx.stroke()
 
-        inside, c0, c1 = clipper.clip_line(c0, c1)
-
-        if inside:
-            self.ctx.move_to(c0.x, c0.y)
-            self.ctx.line_to(c1.x, c1.y)
-            self.ctx.stroke()
+        # clipper = Clipper(self.vmin, self.vmax)
+        #
+        # inside, c0, c1 = clipper.cohen_sutherland(c0, c1)
+        #
+        # if inside:
+        #     self.ctx.move_to(c0.x, c0.y)
+        #     self.ctx.line_to(c1.x, c1.y)
+        #     self.ctx.stroke()

@@ -9,6 +9,9 @@ class DisplayFile:
         self.wireframes: List[Wireframe] = []
 
     def add(self, coordinates: List[Coordinate]):
+        if len(coordinates) == 0:
+            return
+
         wireframe = Wireframe(
             id=f'{self.current_id}',
             coordinates=coordinates,

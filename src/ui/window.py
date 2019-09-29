@@ -2,6 +2,7 @@ from typing import Optional
 
 import cairo
 
+from src.clipping import Clipper
 from src.colors import Color
 from src.display_file import DisplayFile
 from src.drawing import Pencil
@@ -155,7 +156,13 @@ class WindowHandler:
 
         for wireframe in self.df.wireframes:
             transformed_wireframe = self.vp.transform_wireframe(wireframe)
-            pencil.draw_wireframe(transformed_wireframe)
+
+            clipper = Clipper(self.vp.vmin, self.vp.vmax)
+
+            clipped_wireframe = clipper.clip(transformed_wireframe)
+
+            for w in clipped_wireframe:
+                pencil.draw_wireframe(w)
 
         if self.creating_wireframe is not None:
             w = Wireframe(

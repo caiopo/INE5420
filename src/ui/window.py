@@ -141,19 +141,19 @@ class WindowHandler:
         self._refresh_list()
         self._clear_surface()
 
-        pencil = Pencil(self.surface, self.vp.vmin, self.vp.vmax)
-        clipper = Clipper(self.vp.vmin, self.vp.vmax)
+        pencil = Pencil(self.surface)
+        clipper = Clipper(self.vp.cmin, self.vp.cmax)
 
         for wireframe in self.vp.get_grid():
             clipped_wireframes = clipper.clip(wireframe)
             for w in clipped_wireframes:
                 pencil.draw_wireframe(w)
 
-        pencil.line_width(10)
-        pencil.color(Color(0, 0, 0, 0.5))
-
         origin = self.vp.transform_coordinate(Coordinate(0, 0))
-        pencil.draw_point(origin)
+        if clipper.inside(origin):
+            pencil.line_width(10)
+            pencil.color(Color(0, 0, 0, 0.5))
+            pencil.draw_point(origin)
 
         pencil.line_width(1.5)
 
@@ -177,8 +177,8 @@ class WindowHandler:
 
         clipping_square = Wireframe.square(
             'clipping_square',
-            self.vp.vmin,
-            self.vp.vmax,
+            self.vp.cmin,
+            self.vp.cmax,
             color=Color(1, 0.5, 0),
         )
 

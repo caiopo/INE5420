@@ -7,12 +7,9 @@ from src.model import Coordinate, Wireframe
 
 
 class Pencil:
-    def __init__(self, surface, vmin: Coordinate, vmax: Coordinate):
+    def __init__(self, surface):
         self.ctx = cairo.Context(surface)
         self.ctx.set_line_width(1)
-
-        self.vmin = vmin
-        self.vmax = vmax
 
     def draw_point(self, point: Coordinate):
         self.ctx.arc(point.x, point.y, 2, 0, 2 * pi)

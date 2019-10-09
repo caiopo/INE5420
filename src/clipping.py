@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import List
 
-from src.model import Coordinate, Wireframe
+from src.model import Bezier, Coordinate, Wireframe
 
 CENTER = 0  # 0000
 LEFT = 1  # 0001
@@ -16,6 +16,9 @@ class Clipper:
         self.vmax = vmax
 
     def clip(self, wireframe: Wireframe) -> List[Wireframe]:
+        if isinstance(wireframe, Bezier):
+            wireframe = wireframe.curve()
+
         wlen = len(wireframe.coordinates)
 
         if wlen == 1:
@@ -23,13 +26,9 @@ class Clipper:
             if not inside:
                 return []
 
-            return [
-                wireframe.copy(
-                    coordinates=[coord],
-                )
-            ]
+            return [wireframe]
 
-        if wlen == 2 or not wireframe.is_closed:
+        if not wireframe.is_closed:
             return self.clip_lines(wireframe)
 
         return self.weiler_atherton(wireframe)

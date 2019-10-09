@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 
 import cairo
@@ -7,7 +8,7 @@ from src.colors import Color
 from src.display_file import DisplayFile
 from src.drawing import Pencil
 from src.log import log
-from src.model import Coordinate, Direction, Size, Wireframe
+from src.model import Bezier, Coordinate, Direction, Size, Wireframe
 from src.ui.transform_dialog import TransformDialogHandler, TransformResult
 from src.viewport import Viewport
 
@@ -19,7 +20,9 @@ class WindowHandler:
         self.df = DisplayFile()
         self.vp: Optional[Viewport] = None
         self.surface = None
+
         self.creating_wireframe = None
+        self.creating_type = AddWireframeType.WIREFRAME
 
     def on_configure_drawing_area(self, drawing_area, event):
         log(event)
@@ -59,12 +62,33 @@ class WindowHandler:
         if active:
             self.creating_wireframe = []
         else:
-            if len(self.creating_wireframe) > 2:
-                self.creating_wireframe.append(self.creating_wireframe[0])
+            wireframe = None
+            if self.creating_type == AddWireframeType.BEZIER:
+                if len(self.creating_wireframe) == 4:
+                    wireframe = Bezier(
+                        id=self.df.next_id(),
+                        coordinates=self.creating_wireframe,
+                    )
+            else:
+                if len(self.creating_wireframe) > 2:
+                    self.creating_wireframe.append(self.creating_wireframe[0])
 
-            self.df.add(self.creating_wireframe)
+                wireframe = Wireframe(
+                    id=self.df.next_id(),
+                    coordinates=self.creating_wireframe,
+                )
+
+            self.df.add(wireframe)
             self.creating_wireframe = None
         self._refresh()
+
+    def on_change_type_pressed(self, *args):
+        if self.creating_wireframe is not None:
+            pass
+
+        self.creating_type = self.creating_type.next()
+
+        self.builder.get_object('add_wireframe_button').set_label(f'Add {self.creating_type.value}')
 
     def on_move_to_origin_pressed(self, *args):
         log(args)
@@ -216,3 +240,15 @@ class WindowHandler:
         wireframe_list.append('')
 
         self.builder.get_object('wireframe_list').set_text('\n'.join(wireframe_list))
+
+
+class AddWireframeType(Enum):
+    WIREFRAME = 'Wireframe'
+    BEZIER = 'Bezier'
+
+    def next(self):
+        lst = list(AddWireframeType)
+
+        i = lst.index(self)
+
+        return lst[(i + 1) % len(lst)]

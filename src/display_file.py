@@ -1,12 +1,22 @@
 from typing import List
 
-from src.model import Coordinate, Wireframe
+from src.model import Bezier, Coordinate, Wireframe
 
 
 class DisplayFile:
     def __init__(self):
+        self.wireframes: List[Wireframe] = [
+            Bezier(
+                id='a',
+                coordinates=[
+                    Coordinate(100, 100),
+                    Coordinate(100, 200),
+                    Coordinate(200, 200),
+                    Coordinate(200, 100),
+                ]
+            ).curve()
+        ]
         self.current_id = 0
-        self.wireframes: List[Wireframe] = []
 
     def add(self, coordinates: List[Coordinate]):
         if len(coordinates) == 0:

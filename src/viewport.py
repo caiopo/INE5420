@@ -117,12 +117,12 @@ class Viewport:
         size = self.size
 
         lines = [
-            Wireframe.line('red', (self.wmin.x - size.width, y), (self.wmax.x + size.width, y), Colors.red)
+            Wireframe.line('blue', (self.wmin.x - size.width, y), (self.wmax.x + size.width, y), Colors.blue)
             for y in multiples_between(self.wmin.y - size.height, self.wmax.y + size.height, 100)
         ]
 
         columns = [
-            Wireframe.line('blue', (x, self.wmin.y - size.height), (x, self.wmax.y + size.height), Colors.blue)
+            Wireframe.line('red', (x, self.wmin.y - size.height), (x, self.wmax.y + size.height), Colors.red)
             for x in multiples_between(self.wmin.x - size.width, self.wmax.x + size.width, 100)
         ]
 

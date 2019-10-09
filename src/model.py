@@ -129,6 +129,10 @@ class Wireframe:
         )
 
     @property
+    def is_closed(self) -> bool:
+        return self.coordinates[0] == self.coordinates[-1]
+
+    @property
     def center(self) -> Coordinate:
         cx = 0
         cy = 0
@@ -207,6 +211,31 @@ class Wireframe:
         ])
 
         return self._apply_transformation(t_origin @ rotate @ t_back)
+
+
+@dataclass
+class Bezier(Wireframe):
+    def curve(self, n=50):
+        points = np.array([(c.x, c.y) for c in self.coordinates], dtype=float)
+
+        bezier_points = [self._bezier(t, points) for t in np.linspace(0, 1, num=n)]
+
+        return self.copy(
+            coordinates=bezier_points
+        )
+
+    @staticmethod
+    def _bezier(t, p):
+        blending_functions = np.array([
+            (1 - t) ** 3,
+            3 * (1 - t) ** 2 * t,
+            3 * (1 - t) * t ** 2,
+            t ** 3,
+        ])
+
+        c = blending_functions.dot(p)
+
+        return Coordinate(c[0], c[1])
 
 
 @dataclass

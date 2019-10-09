@@ -29,18 +29,8 @@ class Clipper:
                 )
             ]
 
-        if wlen == 2:
-            inside, c0, c1 = self.cohen_sutherland(*wireframe.coordinates)
-            if not inside:
-                return []
-
-            return [
-                wireframe.copy(
-                    coordinates=[c0, c1],
-                )
-            ]
-
-        assert wlen > 2
+        if wlen == 2 or not wireframe.is_closed:
+            return self.clip_lines(wireframe)
 
         return self.weiler_atherton(wireframe)
 
@@ -149,6 +139,20 @@ class Clipper:
             code |= BOTTOM
 
         return code
+
+    def clip_lines(self, wireframe: Wireframe):
+        new_wireframes = []
+
+        for c0, c1 in wireframe.lines:
+            inside, nc0, nc1 = self.cohen_sutherland(c0, c1)
+            if inside:
+                new_wireframes.append(
+                    wireframe.copy(
+                        coordinates=[nc0, nc1]
+                    )
+                )
+
+        return new_wireframes
 
 
 class _Type(Enum):

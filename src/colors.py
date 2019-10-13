@@ -20,3 +20,7 @@ class Color:
 class Colors:
     blue = Color(0, 0, 1, 0.3)
     red = Color(1, 0, 0, 0.3)
+
+    wireframe = Color(0, 0, 0)
+    bezier = Color(0.29, 0, 0.5)
+    bspline = Color(0, 0.5, 0.5)

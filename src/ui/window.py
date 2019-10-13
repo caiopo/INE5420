@@ -4,11 +4,11 @@ from typing import Optional
 import cairo
 
 from src.clipping import Clipper
-from src.colors import Color
+from src.colors import Color, Colors
 from src.display_file import DisplayFile
 from src.drawing import Pencil
 from src.log import log
-from src.model import Bezier, Coordinate, Direction, Size, Wireframe
+from src.model import Bezier, Bspline, Coordinate, Direction, Size, Wireframe
 from src.ui.transform_dialog import TransformDialogHandler, TransformResult
 from src.viewport import Viewport
 
@@ -62,23 +62,36 @@ class WindowHandler:
         if active:
             self.creating_wireframe = []
         else:
-            wireframe = None
-            if self.creating_type == AddWireframeType.BEZIER:
-                if len(self.creating_wireframe) == 4:
-                    wireframe = Bezier(
+            if len(self.creating_wireframe) != 0:
+                wireframe = None
+                if self.creating_type == AddWireframeType.BEZIER:
+                    if len(self.creating_wireframe) == 4:
+                        wireframe = Bezier(
+                            id=self.df.next_id(),
+                            coordinates=self.creating_wireframe,
+                            color=Colors.bezier,
+                        )
+
+                elif self.creating_type == AddWireframeType.BSPLINE:
+                    if len(self.creating_wireframe) >= 4:
+                        wireframe = Bspline(
+                            id=self.df.next_id(),
+                            coordinates=self.creating_wireframe,
+                            color=Colors.bspline,
+                        )
+
+                else:
+                    if len(self.creating_wireframe) > 2:
+                        self.creating_wireframe.append(self.creating_wireframe[0])
+
+                    wireframe = Wireframe(
                         id=self.df.next_id(),
                         coordinates=self.creating_wireframe,
+                        color=Colors.wireframe,
                     )
-            else:
-                if len(self.creating_wireframe) > 2:
-                    self.creating_wireframe.append(self.creating_wireframe[0])
 
-                wireframe = Wireframe(
-                    id=self.df.next_id(),
-                    coordinates=self.creating_wireframe,
-                )
+                self.df.add(wireframe)
 
-            self.df.add(wireframe)
             self.creating_wireframe = None
         self._refresh()
 
@@ -245,6 +258,7 @@ class WindowHandler:
 class AddWireframeType(Enum):
     WIREFRAME = 'Wireframe'
     BEZIER = 'Bezier'
+    BSPLINE = 'B-Spline'
 
     def next(self):
         lst = list(AddWireframeType)

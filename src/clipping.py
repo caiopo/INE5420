@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import List
 
-from src.model import Bezier, Coordinate, Wireframe
+from src.model import Coordinate, Curve, Wireframe
 
 CENTER = 0  # 0000
 LEFT = 1  # 0001
@@ -16,7 +16,7 @@ class Clipper:
         self.vmax = vmax
 
     def clip(self, wireframe: Wireframe) -> List[Wireframe]:
-        if isinstance(wireframe, Bezier):
+        if isinstance(wireframe, Curve):
             wireframe = wireframe.curve()
 
         wlen = len(wireframe.coordinates)

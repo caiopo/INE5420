@@ -3,6 +3,7 @@ from math import cos, sin
 from typing import List, Tuple
 
 import numpy as np
+from sympy import Matrix
 
 from src.colors import Color
 
@@ -213,8 +214,13 @@ class Wireframe:
         return self._apply_transformation(t_origin @ rotate @ t_back)
 
 
+class Curve(Wireframe):
+    def curve(self, n=50):
+        raise NotImplementedError
+
+
 @dataclass
-class Bezier(Wireframe):
+class Bezier(Curve):
     def curve(self, n=50):
         points = np.array([(c.x, c.y) for c in self.coordinates], dtype=float)
 
@@ -236,6 +242,57 @@ class Bezier(Wireframe):
         c = blending_functions.dot(p)
 
         return Coordinate(c[0], c[1])
+
+
+@dataclass
+class Bspline(Curve):
+    def curve(self, n=50):
+        bspline_points = list(self.forward_differences(self.coordinates, n))
+
+        return self.copy(
+            coordinates=bspline_points
+        )
+
+    Mbs = np.array([
+        [-1, 3, -3, 1],
+        [3, -6, 3, 0],
+        [-3, 0, 3, 0],
+        [1, 4, 1, 0],
+    ]) / 6
+
+    @staticmethod
+    def forward_differences(points, n):
+        lp = len(points)
+        delta = 1 / n
+        E = Matrix([
+            [0, 0, 0, 1],
+            [delta ** 3, delta ** 2, delta, 0],
+            [6 * delta ** 3, 2 * delta ** 2, 0, 0],
+            [6 * delta ** 3, 0, 0, 0],
+        ])
+
+        for i in range(0, lp - 3):
+            yield from Bspline._forward_differences(points[i:i + 4], n, E)
+
+    @staticmethod
+    def _forward_differences(points, n, E):
+        Gx = Matrix([p.x for p in points])
+        Gy = Matrix([p.y for p in points])
+
+        Cx = Bspline.Mbs * Gx
+        Cy = Bspline.Mbs * Gy
+
+        fx = E * Cx
+        fy = E * Cy
+
+        yield Coordinate(fx[0], fy[0])
+
+        for _ in range(1, n + 1):
+            for k in range(len(fx) - 1):
+                fx[k] += fx[k + 1]
+                fy[k] += fy[k + 1]
+
+            yield Coordinate(fx[0], fy[0])
 
 
 @dataclass

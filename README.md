@@ -1,5 +1,5 @@
-Trabalho 1.5 - Bezier
-=====================
+Trabalho 1.6 - B-spline
+=======================
 
 Autor: Caio Pereira Oliveira
 
@@ -22,6 +22,7 @@ Dependências:
 - pycairo
 - pygobject
 - numpy
+- sympy
 
 
 Instruções de execução:
